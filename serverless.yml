@@ -1,0 +1,75 @@
+service: FertilizerRecommendation
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  iamRoleStatements:
+    -  Effect: "Allow"
+       Action:
+        - "cloudformation:DescribeStackResource"
+       Resource: "*"   
+  # stage: dev
+  # region: us-east-1
+  # memorySize: 128
+
+functions:
+  app:
+    handler: handler
+    events:
+      - http:
+          path: /irrigation
+          method: GET
+          cors: true
+      - http:
+          path: /cropGroup
+          method: GET
+          request:
+            template:
+              application/json: >
+                {
+                  "district" : "$input.params('district')"
+                }
+          cors: true
+      - http:
+          path: /crop
+          method: GET
+          request:
+            template:
+              application/json: >
+                {
+                  "district" : "$input.params('district')" 
+                }
+          cors: true
+      - http:
+          path: /season
+          method: GET
+          cors: true         
+      - http:
+          path: /soilType
+          method: GET
+          cors: true
+      - http:
+          path: /duration
+          method: GET
+          cors: true
+      - http:
+          path: /reco
+          method: GET
+          request:
+            template:
+              application/json: >
+                {
+                  "N" : "$input.params('N')",
+                  "P" : "$input.params('P')",
+                  "K" : "$input.params('K')"
+                }
+          cors: true          
+      # - http:
+      #     path: /{proxy+}
+      #     method: ANY
+      #     cors: true
+    environment: 
+      SLS_DEBUG: true  
+
+plugins:
+  - serverless-offline
